@@ -3,11 +3,15 @@ from tkinter import messagebox,PhotoImage
 from PIL import ImageTk,Image
 import mysql.connector as ms
 
-con = ms.connect(host='localhost',user='root',password='123456',database='project')
+con = ms.connect(host='localhost',user='root',password='your_password')
 if con.is_connected():
   cur = con.cursor()
-  query = "create table if not exists apt(BNo INT PRIMARY KEY,BHK INT,Vacancy CHAR(10),Owner CHAR(15),Price INT)"
-  cur.execute(query)
+  query1 = "create database if not exists project"
+  cur.execute(query1)
+  query2 = "use project"
+  cur.execute(query2)
+  query3 = "create table if not exists apt(BNo INT PRIMARY KEY,BHK INT,Vacancy CHAR(10),Owner CHAR(15),Price INT)"
+  cur.execute(query3)
   con.commit()
   def Home_Page():
                    ### ALL FUNTIONS FOR BUTTONS IN HOME PAGE

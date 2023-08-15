@@ -8,8 +8,6 @@ if con.is_connected():
   cur = con.cursor()
   query1 = "create database if not exists project"
   cur.execute(query1)
-  query2 = "use project"
-  cur.execute(query2)
   query3 = "create table if not exists apt(BNo INT PRIMARY KEY,BHK INT,Vacancy CHAR(10),Owner CHAR(15),Price INT)"
   cur.execute(query3)
   con.commit()

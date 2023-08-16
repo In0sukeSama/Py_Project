@@ -12,7 +12,7 @@ if con.is_connected():
   cur.execute(query2)
   query3 = "create table if not exists apt(BNo INT PRIMARY KEY,BHK INT,Vacancy CHAR(10),Owner CHAR(15),Price INT)"
   cur.execute(query3)
-  con.commit()#Testing#
+  con.commit()#Testing ig it worked :)
   def Home_Page():
                    ### ALL FUNTIONS FOR BUTTONS IN HOME PAGE
     def APT():

@@ -65,7 +65,6 @@ if con.is_connected():
                       messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
 
                           #A FRAME TO SHOW WHAT AND ALL YOU CAN DO WHEN U PRESS APT BUTTON
-          running = True
           
           frame2 = tk.Frame(window2, width=400, height=400, bg='white')
           frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
@@ -114,37 +113,37 @@ if con.is_connected():
               query = "SELECT * FROM apt"
               cur.execute(query)
               result = cur.fetchall()
-              
               found = False
               for i in result:
                   if apt_entry1.get().isdigit():
                       if int(apt_entry1.get()) == i[0]:
-                          found = True
-                          s = ['VACANT','OWNED','vacant','owned']
-                          if apt_entry2.get() in s:
-                              if apt_entry3.get().isalpha():
-                                  if apt_entry4.get().isdigit():
-                                      if apt_entry5.get().isdigit():
+                          found = True                      
+              if found == False:
+                  messagebox.showerror(title="INVALID INPUT", message="A record with the given BLD_No does not exists")
+              else:            
+                  if apt_entry1.get().isdigit():
+                      s = ['VACANT','OWNER','vacant','owned','Vacant','Owned']
+                      if apt_entry2.get() in s:
+                          if apt_entry3.get().isalpha():
+                              if apt_entry4.get().isdigit():
+                                  if apt_entry5.get().isdigit():
 
-                                          query1 = "update apt set Vacancy = %s,Owner = %s,Price = %s where BNo = %s "
-                                          values = (str(apt_entry2.get()), str(apt_entry3.get()), int(apt_entry4.get()),int(apt_entry1.get()))
-                                          cur.execute(query1, values)
-                                          con.commit()
+                                      query1 = "update apt set BHK = %s,Vacancy = %s,Owner = %s,Price = %s where BNO = %s"
+                                      values = (int(apt_entry5.get()),str(apt_entry5.get()),str(apt_entry3.get()), int(apt_entry4.get()), int(apt_entry1.get()))
+                                      cur.execute(query1, values)
+                                      con.commit()
 
-                                          messagebox.showinfo(title="RECORD ADDED", message="You successfully updated a record.")
-                                      else:
-                                          messagebox.showerror(title="INVALID INPUT", message="BHK MUST BE A DIGIT")
+                                      messagebox.showinfo(title="RECORD UPDATED", message="You successfully updated a record.")
                                   else:
-                                      messagebox.showerror(title="INVALID INPUT", message="PRICE MUST BE A DIGIT")
+                                      messagebox.showerror(title="INVALID INPUT", message="BHK MUST BE A DIGIT")
                               else:
-                                  messagebox.showerror(title="INVALID INPUT", message="OWNER MUST BE AN ALPHABET")
+                                  messagebox.showerror(title="INVALID INPUT", message="PRICE MUST BE A DIGIT")
                           else:
-                              messagebox.showerror(title="INVALID INPUT", message="VACANY MUST BE 'VACANT' OR 'OWNED'")
+                              messagebox.showerror(title="INVALID INPUT", message="OWNER MUST BE AN ALPHABET")
+                      else:
+                          messagebox.showerror(title="INVALID INPUT", message="VACANY MUST BE 'VACANT' OR 'OWNED'")
                   else:
-                      messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
-              else:
-                  if found == False: 
-                      messagebox.showerror(title="INVALID INPUT", message="A record with the given BLD_No does not exists")
+                      messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER") 
 
                   #A FRAME TO SHOW WHAT AND ALL YOU CAN DO WHEN U PRESS APT BUTTON
           frame2 = tk.Frame(window2, width=400, height=400, bg='white')
@@ -280,7 +279,107 @@ if con.is_connected():
         text="VIEW", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=VIEW)
       apt_button4.place(x = 260 , y = 430)
 
-      
+    def owner():
+
+        def ADD1():
+
+            def add_records1():
+                query = "SELECT * FROM owner"
+                cur.execute(query)
+                result = cur.fetchall()
+                found = False
+                for i in result:
+                    if apt_entry1.get().isdigit():
+                        if int(apt_entry1.get()) == i[0]:
+                            found = True                      
+                if found == True:
+                    messagebox.showerror(title="INVALID INPUT", message="A record with the given BLD_No already exists")
+                else:            
+                    if apt_entry1.get().isdigit():
+                        s = ['VACANT','OWNER','vacant','owned','Vacant','Owned']
+                        if apt_entry2.get() in s:
+                            if apt_entry3.get().isalpha():
+                                if apt_entry4.get().isdigit():
+                                    if apt_entry5.get().isdigit():
+
+                                        query1 = "insert into apt values(%s, %s, %s, %s,%s)"
+                                        values = (int(apt_entry1.get()),int(apt_entry5.get()),str(apt_entry2.get()), str(apt_entry3.get()), int(apt_entry4.get()))
+                                        cur.execute(query1, values)
+                                        con.commit()
+
+                                        messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
+                                    else:
+                                        messagebox.showerror(title="INVALID INPUT", message="BHK MUST BE A DIGIT")
+                                else:
+                                    messagebox.showerror(title="INVALID INPUT", message="PRICE MUST BE A DIGIT")
+                            else:
+                                messagebox.showerror(title="INVALID INPUT", message="OWNER MUST BE AN ALPHABET")
+                        else:
+                            messagebox.showerror(title="INVALID INPUT", message="VACANY MUST BE 'VACANT' OR 'OWNED'")
+                    else:
+                        messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
+
+                            #A FRAME TO SHOW WHAT AND ALL YOU CAN DO WHEN U PRESS APT BUTTON
+            
+            frame2 = tk.Frame(window2, width=400, height=400, bg='white')
+            frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+            frame2.place(x=375, y=200)
+
+            global apt_entry1,apt_entry2,apt_entry3,apt_entry4
+
+            apt_label1 = tk.Label(frame2,
+             text="Ow_ID", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label1.place(x=-20,y=20)
+            apt_entry1 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry1.place(x = 130,y = 20)
+            apt_label5 = tk.Label(frame2,
+             text="Name", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label5.place(x=-20,y=70)
+            apt_entry5 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry5.place(x = 130,y = 70)
+            apt_label2 = tk.Label(frame2,
+              text="Phone_NO", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label2.place(x=-20,y=120)
+            apt_entry2 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry2.place(x = 130,y = 120)
+            apt_label3 = tk.Label(frame2,
+              text="BNO", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label3.place(x=-20,y=170)
+            apt_entry3 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry3.place(x = 130,y = 170)
+            
+            apt_button1 = tk.Button(frame2,
+                text="ADD RECORD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=add_records1)
+            apt_button1.place(x = 120 , y = 285)
+
+            close = tk.Button(frame2,
+                text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
+            close.place(x = 155 , y = 335)
+
+
+        def update1():
+            pass
+        def delete1():
+            pass
+        def VIEW1():
+            pass
+                      ## THE MAIN BUTTONS
+        apt_button1 = tk.Button(window2,
+          text="ADD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=ADD1)
+        apt_button1.place(x = 260 , y = 280)
+        
+        apt_button2 = tk.Button(window2,
+          text="UPDATE", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=update1)
+        apt_button2.place(x = 250 , y =330)
+        
+        apt_button3 = tk.Button(window2,
+          text="DELETE", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=delete1)
+        apt_button3.place(x = 250 , y = 380)
+        
+        apt_button4 = tk.Button(window2,
+          text="VIEW", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=VIEW1)
+        apt_button4.place(x = 260 , y = 430)
+
     def event():
       pass
     def Amenities():
@@ -341,7 +440,7 @@ if con.is_connected():
         text="EVENTS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=event)
     event_button.place(x = 50 , y = 400)
     Owner_button = tk.Button(window2,
-        text="OWNER", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=APT)
+        text="OWNER", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=owner)
     Owner_button.place(x = 50 , y = 300)
     Amenities_but = tk.Button(window2,
       text="Amenities", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=Amenities)

@@ -4,14 +4,23 @@ from PIL import ImageTk,Image
 import mysql.connector as ms
 
 con = ms.connect(host='localhost',user='root',password='123456')
+
+### these are for the slider label
+y = "WELCOME TO APT MANAGMENT SYSTEM"
+count = 0
+text = ""
+
+
 if con.is_connected():
   cur = con.cursor()
   query1 = "create database if not exists project"
   cur.execute(query1)
   query2 = "use project"
   cur.execute(query2)
-  query3 = "create table if not exists apt(BNo INT PRIMARY KEY,BHK INT,Vacancy CHAR(10),Owner CHAR(15),Price INT)"
+  query3 = "create table if not exists apt(BNO INT PRIMARY KEY,BHK INT,Vacancy CHAR(10),Owner CHAR(15),Price INT)"
   cur.execute(query3)
+  query4 = " create table if not exists owner(Ow_ID INT NOT NULL PRIMARY KEY,Name char(15),Phone_No int,BNO INT,CONSTRAINT FOREIGN KEY (BNO) REFERENCES apt(BNO) ON DELETE CASCADE ON UPDATE CASCADE);"
+  cur.execute(query4)
   con.commit()
   def Home_Page():
                    ### ALL FUNTIONS FOR BUTTONS IN HOME PAGE
@@ -246,7 +255,7 @@ if con.is_connected():
           view_label2.place(x=0, y=70)
           view_label3 = tk.Label(frame2,
            text=s2, bg='white',width=50, fg="#FF3399", font=("Arial", 12))
-          view_label3.place(x=-10, y=100)
+          view_label3.place(x=0, y=100)
 
 
           close = tk.Button(frame2,
@@ -301,13 +310,27 @@ if con.is_connected():
     label.place(x=-400,y=-300)
 
 
+    
                   # Labels for home page
+    global y
+    def slider():
+        global count,text,y
+        if count >= len(y):
+            count = 0
+            text = ""
+            apt_Label.config(text=text)
+        else:
+            text += y[count]
+            apt_Label.config(text=text)
+            count += 1
+        apt_Label.after(200,slider)
     login_label = tk.Label(frame,
        text="HOME PAGE", fg="#FF3399", font=("Arial", 30))
     login_label.place(relx= 0.35, y = 20)
     apt_Label = tk.Label(frame,
-       text="APARTMENT MANAGEMENT SYS", fg="#FF3399", font=("Arial", 30))
-    apt_Label.place(relx= 0.125, y = 75)
+       text= y, fg="#FF3399", font=("Arial", 30))
+    apt_Label.place(relx= 0.05, y = 75)
+    slider()
 
 
                   #Buttons for Home Page
@@ -383,9 +406,8 @@ if con.is_connected():
 
 
 
+
           # Placing Labels on the screen
-
-
   login_label.place(x=140, y=0)
   username_label.place(x=25, y=100)
   username_entry.place(x=125, y=100)
@@ -395,3 +417,4 @@ if con.is_connected():
 
 
   window.mainloop()
+

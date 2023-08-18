@@ -44,13 +44,13 @@ if con.is_connected():
                       if apt_entry3.get().isdigit():
                           if int(apt_entry3.get()) > 799 and int(apt_entry3.get()) < 1701:
                               s = ['VACANT','OWNER','vacant','owned','Vacant','Owned']
-                              if apt_entry2.get() in s:
+                              if add_apt_entry2.get() in s:
                                   if apt_entry4.get().isdigit():
                                       if int(apt_entry4.get()) > 999999 or int(apt_entry4.get()) < 10000000:
                                           if apt_entry5.get().isdigit():
 
                                               query1 = "insert into apt values(%s, %s, %s, %s,%s)"
-                                              values = (int(apt_entry1.get()),int(apt_entry5.get()),int(apt_entry3.get()), str(apt_entry2.get()), int(apt_entry4.get()))
+                                              values = (int(apt_entry1.get()),int(apt_entry5.get()),int(apt_entry3.get()), str(add_apt_entry2.get()), int(apt_entry4.get()))
                                               cur.execute(query1, values)
                                               con.commit()
 
@@ -64,7 +64,7 @@ if con.is_connected():
                               else:
                                   messagebox.showerror(title="INVALID INPUT", message="VACANY MUST BE 'VACANT' OR 'OWNED'")
                           else:
-                              messagebox.showerror(title="INVALID INPUT", message="Square_Feet MUST BE WITHIN '10,000,000' AND '99,999,999' ")
+                              messagebox.showerror(title="INVALID INPUT", message="Square_Feet MUST BE WITHIN 800 and 1600 ")
                       else:
                           messagebox.showerror(title="INVALID INPUT", message="Square_Feet MUST A DIGIT")
                   else:
@@ -76,7 +76,7 @@ if con.is_connected():
           frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
           frame2.place(x=375, y=200)
 
-          global apt_entry1,apt_entry2,apt_entry3,apt_entry4
+          global apt_entry1,add_apt_entry2,apt_entry3,apt_entry4
 
           apt_label1 = tk.Label(frame2,
            text="Bldg_No", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
@@ -93,11 +93,11 @@ if con.is_connected():
           apt_label3.place(x=-20,y=120)
           apt_entry3 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
           apt_entry3.place(x = 130,y = 120)
-          apt_label2 = tk.Label(frame2,
+          add_apt_label2 = tk.Label(frame2,
             text="Vacancy", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
-          apt_label2.place(x=-20,y=170)
-          apt_entry2 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
-          apt_entry2.place(x = 130,y = 170)
+          add_apt_label2.place(x=-20,y=170)
+          add_apt_entry2 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+          add_apt_entry2.place(x = 130,y = 170)
           apt_label4 = tk.Label(frame2,
             text="Price", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
           apt_label4.place(x=-20,y=220)
@@ -128,24 +128,30 @@ if con.is_connected():
                   messagebox.showerror(title="INVALID INPUT", message="A record with the given BLD_No does not exists")
               else:            
                   if apt_entry1.get().isdigit():
-                      if apt_entry3.get().isdigit() :
-                          s = ['VACANT','OWNER','vacant','owned','Vacant','Owned']
-                          if apt_entry2.get() in s:
-                              if apt_entry4.get().isdigit():
-                                  if apt_entry5.get().isdigit():
+                      if apt_entry3.get().isdigit():
+                          if int(apt_entry3.get()) > 799 and int(apt_entry3.get()) < 1701:
+                              s = ['VACANT','OWNER','vacant','owned','Vacant','Owned']
+                              if add_apt_entry2.get() in s:
+                                  if apt_entry4.get().isdigit():
+                                      if int(apt_entry4.get()) > 999999 or int(apt_entry4.get()) < 10000000:
+                                          if apt_entry5.get().isdigit():
 
-                                      query1 = "update apt set BHK = %s,Square_Feet = %s,Vacancy = %s,Price = %s where BNO = %s"
-                                      values = (int(apt_entry5.get()),int(apt_entry3.get()),str(apt_entry2.get()), int(apt_entry4.get()), int(apt_entry1.get()))
-                                      cur.execute(query1, values)
-                                      con.commit()
+                                              query1 = "update apt set BHK = %s,Square_Feet = %s,Vacancy = %s,Price = %s where BNO = %s"
+                                              values = (int(apt_entry5.get()),int(apt_entry3.get()),str(add_apt_entry2.get()), int(apt_entry4.get()), int(apt_entry1.get()))
+                                              cur.execute(query1, values)
+                                              con.commit()
 
-                                      messagebox.showinfo(title="RECORD UPDATED", message="You successfully updated a record.")
+                                              messagebox.showinfo(title="RECORD ADDED", message="You successfully updated a record.")
+                                          else:
+                                              messagebox.showerror(title="INVALID INPUT", message="BHK MUST BE A DIGIT")
+                                      else:
+                                          messagebox.showerror(title="INVALID INPUT", message="PRICE MUST BE WITHIN '10,000,000' AND '99,999,999'")
                                   else:
-                                      messagebox.showerror(title="INVALID INPUT", message="BHK MUST BE A DIGIT")
+                                      messagebox.showerror(title="INVALID INPUT", message="PRICE MUST BE A DIGIT ")
                               else:
-                                  messagebox.showerror(title="INVALID INPUT", message="PRICE MUST BE A DIGIT")
+                                  messagebox.showerror(title="INVALID INPUT", message="VACANY MUST BE 'VACANT' OR 'OWNED'")
                           else:
-                              messagebox.showerror(title="INVALID INPUT", message="VACANY MUST BE 'VACANT' OR 'OWNED'")
+                              messagebox.showerror(title="INVALID INPUT", message="Square_Feet MUST BE WITHIN 800 and 1600 ")
                       else:
                           messagebox.showerror(title="INVALID INPUT", message="Square_Feet MUST A DIGIT")
                   else:
@@ -175,8 +181,8 @@ if con.is_connected():
           apt_label2 = tk.Label(frame2,
             text="Vacancy", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
           apt_label2.place(x=-20,y=170)
-          apt_entry2 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
-          apt_entry2.place(x = 130,y = 170)
+          add_apt_entry2 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+          add_apt_entry2.place(x = 130,y = 170)
           apt_label4 = tk.Label(frame2,
             text="Price", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
           apt_label4.place(x=-20,y=220)
@@ -290,6 +296,9 @@ if con.is_connected():
         def ADD1():
 
             def add_records1():
+
+                '''if (add_apt_entry2.get()).lower() == "vacant":
+                    name = False'''
                 query = "SELECT * FROM owner"
                 cur.execute(query)
                 result = cur.fetchall()
@@ -308,12 +317,23 @@ if con.is_connected():
                                 if apt_entry4.get().isdigit():
                                     if apt_entry5.get().isdigit():
 
-                                        query1 = "insert into apt values(%s, %s, %s, %s,%s)"
-                                        values = (int(apt_entry1.get()),int(apt_entry5.get()),str(apt_entry2.get()), str(apt_entry3.get()), int(apt_entry4.get()))
-                                        cur.execute(query1, values)
-                                        con.commit()
+                                        if name == False:
 
-                                        messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
+                                            query2 = "insert into owner(Ow_ID,Phone_No,BNO) values(%s,%s,%s)"
+                                            values = (int(apt_entry1.get()),int(apt_entry2.get()),int(apt_entry3.get()))
+                                            cur.execute(quer2,values)
+                                            con.commit()
+
+                                            messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
+
+                                        else:
+
+                                            query1 = "insert into apt values(%s, %s, %s,%s)"
+                                            values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
+                                            cur.execute(query1, values)
+                                            con.commit()
+
+                                            messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
                                     else:
                                         messagebox.showerror(title="INVALID INPUT", message="BHK MUST BE A DIGIT")
                                 else:

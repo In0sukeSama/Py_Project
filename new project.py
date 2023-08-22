@@ -21,7 +21,7 @@ if con.is_connected():
   cur.execute(query2)
   query3 = "create table if not exists apt(BNO INT PRIMARY KEY,BHK INT,Square_Feet int,Vacancy CHAR(15),Price INT,check(Price >= 1000000 and Price <= 9999999 and Square_Feet >= 800 and Square_Feet <= 1600))"
   cur.execute(query3)
-  query4 = " create table if not exists owner(Ow_ID INT NOT NULL PRIMARY KEY,Name char(15),Phone_No int,BNO INT,CONSTRAINT FOREIGN KEY (BNO) REFERENCES apt(BNO) ON DELETE CASCADE ON UPDATE CASCADE);"
+  query4 = "create table if not exists owner(Ow_ID INT NOT NULL PRIMARY KEY,Name char(15),Phone_No char(10),BNO INT,CONSTRAINT FOREIGN KEY (BNO) REFERENCES apt(BNO) ON DELETE CASCADE ON UPDATE CASCADE);"
   cur.execute(query4)
   con.commit()
   def Home_Page():
@@ -305,9 +305,11 @@ if con.is_connected():
                 query1 = "select vacancy from apt where BNO = %s;"
                 values1 = (int(apt_entry1.get()),)
                 cur.execute(query1,values1)
-                result1 = cur.fetchone()
+                result1 = cur.fetchone()              
                 if result1[0].lower() == 'vacant':
                     Vacancy = [-1]
+                else:
+                    pass
 
                 query = "SELECT * FROM owner"
                 cur.execute(query)
@@ -318,16 +320,16 @@ if con.is_connected():
                         if int(apt_entry1.get()) == i[0]:
                             found1 = True                      
                 if found1 == True:
-                    messagebox.showerror(title="INVALID INPUT", message="A record with the given BLD_No already exists")
+                    messagebox.showerror(title="INVALID INPUT", message="A record with the given Ow_ID already exists")
                 else:            
                     if apt_entry1.get().isdigit():
-                        if apt_entry2.get().isdigit():
+                        if apt_entry2.get().isdigit() and len(str(apt_entry2.get())) == 10:
                             if apt_entry3.get().isdigit():
                                 if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
                                     if Vacancy == [-1]:
 
                                         query2 = "insert into owner(Ow_ID,Phone_No,BNO) values(%s,%s,%s)"
-                                        values = (int(apt_entry1.get()),int(apt_entry2.get()),int(apt_entry3.get()))
+                                        values = (int(apt_entry1.get()),str(apt_entry2.get()),int(apt_entry3.get()))
                                         cur.execute(query2,values)
                                         con.commit()
 
@@ -337,20 +339,22 @@ if con.is_connected():
                                             messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
 
                                     else:
-                                    
-                                        query1 = "insert into owner values(%s, %s, %s,%s)"
-                                        values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
-                                        cur.execute(query1, values)
-                                        con.commit()
+                                        if str(apt_entry5.get()) == '':
+                                            messagebox.showinfo(title="INVALID INPUT", message="MUST HAVE AN OWNER FOR A OWNED APT")
+                                        else:
+                                            query1 = "insert into owner values(%s, %s, %s,%s)"
+                                            values = (int(apt_entry1.get()),str(apt_entry5.get()),str(apt_entry2.get()), int(apt_entry3.get()))
+                                            cur.execute(query1, values)
+                                            con.commit()
 
-                                        messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
-                                   
+                                            messagebox.showerror(title="RECORD ADDED", message="You successfully added a record.")
+                                       
                                 else:
                                     messagebox.showerror(title="INVALID INPUT", message="NAME MUST A STRING")
                             else:
                                 messagebox.showerror(title="INVALID INPUT", message="BNO MUST BE AN INTEGER")
                         else:
-                            messagebox.showerror(title="INVALID INPUT", message="PHONE NO MUST BE AN INTEGER")
+                            messagebox.showerror(title="INVALID INPUT", message="PHONE NO MUST BE AN INTEGER" + "\n" + 'AND MUST BE 10 DIGITS LONG')
                     else:
                         messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
 
@@ -394,9 +398,151 @@ if con.is_connected():
 
 
         def update1():
-            pass
+            def update_records1():
+
+              ###CHECKING VACANCY
+                Vacancy = []
+
+                query1 = "select vacancy from apt where BNO = %s;"
+                values1 = (int(apt_entry3.get()),)
+                cur.execute(query1,values1)
+                result1 = cur.fetchone()
+                print(result1[0].lower() + 'hello')
+                if result1[0].lower() == 'vacant':
+
+                    Vacancy = [-1]
+
+                query = "SELECT * FROM owner"
+                cur.execute(query)
+                result = cur.fetchall()
+                found = False
+                for i in result:
+                    if apt_entry3.get().isdigit():
+                        if int(apt_entry3.get()) == i[3]:
+                            found = True                      
+                if found == False:
+                    messagebox.showerror(title="INVALID INPUT", message="A record with the given BNO does not exists")
+                else:            
+                    if apt_entry1.get().isdigit():
+                          if apt_entry2.get().isdigit():
+                              if apt_entry3.get().isdigit():
+                                  if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
+                                      if Vacancy == [-1]:
+
+                                          query2 = "update owner set Ow_ID = %s,Phone_NO = %s  where BNO = &s"
+                                          values = (int(apt_entry1.get()),int(apt_entry2.get()), int(apt_entry3.get()))
+                                          cur.execute(query2,values)
+                                          con.commit()
+
+                                          if str(apt_entry5.get()) == '':
+                                              messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
+                                          else:
+                                              messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
+
+                                      else:
+                                      
+                                          query1 = "update owner set Ow_ID = %s,Name = %s,Phone_NO = %s where BNO = &s"
+                                          values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
+                                          cur.execute(query1, values)
+                                          con.commit()
+
+                                          messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
+                                     
+                                  else:
+                                      messagebox.showerror(title="INVALID INPUT", message="NAME MUST A STRING")
+                              else:
+                                  messagebox.showerror(title="INVALID INPUT", message="BNO MUST BE AN INTEGER")
+                          else:
+                              messagebox.showerror(title="INVALID INPUT", message="PHONE NO MUST BE AN INTEGER")
+                    else:
+                          messagebox.showerror(title="INVALID INPUT", message="Ow_ID MUST BE AN INTEGER")
+
+
+
+                    #A FRAME TO SHOW WHAT AND ALL YOU CAN DO WHEN U PRESS APT BUTTON
+            frame2 = tk.Frame(window2, width=400, height=400, bg='white')
+            frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+            frame2.place(x=375, y=200)
+
+            global apt_entry1,apt_entry2,apt_entry3,apt_entry4
+
+            apt_label1 = tk.Label(frame2,
+             text="Ow_ID", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label1.place(x=-20,y=20)
+            apt_entry1 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry1.place(x = 130,y = 20)
+            apt_label5 = tk.Label(frame2,
+             text="Name", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label5.place(x=-20,y=70)
+            apt_entry5 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry5.place(x = 130,y = 70)
+            apt_label2 = tk.Label(frame2,
+              text="Phone_NO", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label2.place(x=-20,y=120)
+            apt_entry2 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry2.place(x = 130,y = 120)
+            apt_label3 = tk.Label(frame2,
+              text="BNO", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label3.place(x=-20,y=170)
+            apt_entry3 = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry3.place(x = 130,y = 170)
+
+            
+            apt_button1 = tk.Button(frame2,
+                text="UPDATE RECORD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=update_records1)
+            apt_button1.place(x = 120 , y = 285)
+
+            close = tk.Button(frame2,
+                text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
+            close.place(x = 155 , y = 335)
+
+
         def delete1():
-            pass
+            def delete_records1():
+                query = "SELECT * FROM owner"
+                cur.execute(query)
+                result = cur.fetchall()
+                for i in result:
+                    if int(apt_entry.get()) != i[0]:
+                        found = False
+                    else:
+                        found = True
+                        break
+                if found == True:
+                    query1 = "delete from owner where Ow_ID = %s "
+                    values = (int(apt_entry.get()),)
+                    cur.execute(query1, values)
+                    con.commit()
+                    messagebox.showinfo(title="RECORD DELETED", message="successfully delete the record.")
+                else:
+                    messagebox.showerror(title="INVALID INPUT", message="Ow_ID DOES NOT EXIST IN TABLE")
+
+                  #A FRAME TO SHOW WHAT AND ALL YOU CAN DO WHEN U PRESS APT BUTTON
+            frame2 = tk.Frame(window2, width=400, height=400, bg='white')
+            frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+            frame2.place(x=375, y=200)
+
+            apt_label1 = tk.Label(frame2,
+             text="ENTER OWNER DETAILS OF ", bg='white',width=25, fg="#FF3399", font=("Arial", 15))
+            apt_label1.place(x=60,y=20)
+            apt_label3 = tk.Label(frame2,
+             text=" RECORD TO BE DELETED", bg='white',width=30, fg="#FF3399", font=("Arial", 15))
+            apt_label3.place(x=30,y=60)
+            apt_label2 = tk.Label(frame2,
+             text="Ow_ID", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label2.place(x = -5 , y = 150)
+            apt_entry = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            apt_entry.place(x = 130,y = 150)
+
+            apt_button1 = tk.Button(frame2,
+                text="DELETE RECORD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=delete_records1)
+            apt_button1.place(x = 100 , y = 275)
+
+            close = tk.Button(frame2,
+                text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
+            close.place(x = 155 , y = 325)
+
+
         def VIEW1():
             
             frame2 = tk.Frame(window2, width=420, height=410, bg='white')
@@ -494,11 +640,51 @@ if con.is_connected():
             text="APT", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=clear_apt)
         apt_clear.place(x = 180 , y = 480)
 
+        def clear_owner():
+
+            def Yes1():
+                owner_clear.place(x = -500,y=-500)
+                query = 'delete from owner'
+                cur.execute(query)
+                messagebox.showinfo(title="DATA CLEARED", message="OWNER TABLE CLEARED")
+                con.commit()
+                window3.destroy()
+            def No1():
+                owner_clear.place(x = -500,y=-500)
+                window3.destroy()
+
+            window3 = tk.Tk()
+            window3.eval('tk::PlaceWindow . center')
+            window3.title("CHECKING...")
+            window3.geometry('300x300+420+280')
+            window3.configure(bg='#FF3399')
+            window3.resizable(False,False)
+
+            login_label = tk.Label(window3,
+               text="ARE YOU SURE YOU WANT", fg="#FF3399", font=("Arial", 15))
+            login_label.place(x =20, y = 50)
+            login_label1 = tk.Label(window3,
+               text=" TO CLEAR ALL DATA ???", fg="#FF3399", font=("Arial", 15))
+            login_label1.place(x = 25, y = 90)
+
+            Yes_button = tk.Button(window3,
+                text="YES", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=Yes1)
+            Yes_button.place(x = 50 , y = 200)
+
+            No_button = tk.Button(window3,
+                text="No", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=No1)
+            No_button.place(x = 175 , y = 200)
+        global owner_clear
+            
+        owner_clear = tk.Button(window2,
+            text="OWNER", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=clear_apt)
+        apt_clear.place(x = 180 , y = 520)
+
 
               # Creating another window for HOME PAGE
     window2 = tk.Tk()
     window2.title("Home Page")
-    window2.geometry('900x615')
+    window2.geometry('900x615-250-50')
     window2.configure(bg='white')
     window2.resizable(False,False)
 

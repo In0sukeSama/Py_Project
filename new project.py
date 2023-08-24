@@ -301,12 +301,17 @@ if con.is_connected():
             def add_records1():
                 ###CHECKING VACANCY
                 Vacancy = []
+                B_N_O = []
 
                 query1 = "select vacancy from apt where BNO = %s;"
-                values1 = (int(apt_entry1.get()),)
+                values1 = (int(apt_entry3.get()),)
                 cur.execute(query1,values1)
-                result1 = cur.fetchone()              
-                if result1[0].lower() == 'vacant':
+                result1 = cur.fetchone()           
+                if result1 is None:
+                    messagebox.showerror(title="INVALID INPUT", message="A RECORD WITH THE GIVEN BNO DOES NOT EXIST")
+                    B_N_O = [-1]
+
+                elif result1[0].lower() == 'vacant' :
                     Vacancy = [-1]
                 else:
                     pass
@@ -321,42 +326,45 @@ if con.is_connected():
                             found1 = True                      
                 if found1 == True:
                     messagebox.showerror(title="INVALID INPUT", message="A record with the given Ow_ID already exists")
-                else:            
-                    if apt_entry1.get().isdigit():
-                        if apt_entry2.get().isdigit() and len(str(apt_entry2.get())) == 10:
-                            if apt_entry3.get().isdigit():
-                                if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
-                                    if Vacancy == [-1]:
+                else:           
+                    if B_N_O != [-1]: 
+                        if apt_entry1.get().isdigit():
+                            if apt_entry2.get().isdigit() and len(apt_entry2.get()) == 10:
+                                if apt_entry3.get().isdigit():
+                                    if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
+                                        if apt_entry1.get() == apt_entry3.get():
+                                            if Vacancy == [-1]:
 
-                                        query2 = "insert into owner(Ow_ID,Phone_No,BNO) values(%s,%s,%s)"
-                                        values = (int(apt_entry1.get()),str(apt_entry2.get()),int(apt_entry3.get()))
-                                        cur.execute(query2,values)
-                                        con.commit()
+                                                query2 = "insert into owner(Ow_ID,Phone_No,BNO) values(%s,%s,%s)"
+                                                values = (int(apt_entry1.get()),str(apt_entry2.get()),int(apt_entry3.get()))
+                                                cur.execute(query2,values)
+                                                con.commit()
 
-                                        if str(apt_entry5.get()) == '':
-                                            messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
+                                                if str(apt_entry5.get()) == '':
+                                                    messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
+                                                else:
+                                                    messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
+
+                                            else:
+                                                if str(apt_entry5.get()) == '':
+                                                    messagebox.showinfo(title="INVALID INPUT", message="MUST HAVE AN OWNER FOR A OWNED APT")
+                                                else:
+                                                    query1 = "insert into owner values(%s, %s, %s,%s)"
+                                                    values = (int(apt_entry1.get()),str(apt_entry5.get()),str(apt_entry2.get()), int(apt_entry3.get()))
+                                                    cur.execute(query1, values)
+                                                    con.commit()
+
+                                                    messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
                                         else:
-                                            messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
-
+                                            messagebox.showerror(title = 'INVALID INPUT', message = "OW_ID MUST BE EQAUAL TO BNO")
                                     else:
-                                        if str(apt_entry5.get()) == '':
-                                            messagebox.showinfo(title="INVALID INPUT", message="MUST HAVE AN OWNER FOR A OWNED APT")
-                                        else:
-                                            query1 = "insert into owner values(%s, %s, %s,%s)"
-                                            values = (int(apt_entry1.get()),str(apt_entry5.get()),str(apt_entry2.get()), int(apt_entry3.get()))
-                                            cur.execute(query1, values)
-                                            con.commit()
-
-                                            messagebox.showerror(title="RECORD ADDED", message="You successfully added a record.")
-                                       
+                                        messagebox.showerror(title="INVALID INPUT", message="NAME MUST A STRING")
                                 else:
-                                    messagebox.showerror(title="INVALID INPUT", message="NAME MUST A STRING")
+                                    messagebox.showerror(title="INVALID INPUT", message="BNO MUST BE AN INTEGER")
                             else:
-                                messagebox.showerror(title="INVALID INPUT", message="BNO MUST BE AN INTEGER")
+                                messagebox.showerror(title="INVALID INPUT", message="PHONE NO MUST BE AN INTEGER" + "\n" + 'AND MUST BE 10 DIGITS LONG')
                         else:
-                            messagebox.showerror(title="INVALID INPUT", message="PHONE NO MUST BE AN INTEGER" + "\n" + 'AND MUST BE 10 DIGITS LONG')
-                    else:
-                        messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
+                            messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
 
                             #A FRAME TO SHOW WHAT AND ALL YOU CAN DO WHEN U PRESS APT BUTTON
             
@@ -404,62 +412,65 @@ if con.is_connected():
                 Vacancy = []
 
                 query1 = "select vacancy from apt where BNO = %s;"
-                values1 = (int(apt_entry3.get()),)
+                values1 = (str(apt_entry3.get()),)
                 cur.execute(query1,values1)
                 result1 = cur.fetchone()
-                print(result1[0].lower() + 'hello')
-                if result1[0].lower() == 'vacant':
+                B_N_O = []
+                if result1 is None:
+                    messagebox.showerror(title="INVALID INPUT", message="A RECORD WITH THE GIVEN BNO DOES NOT EXIST") 
+                    B_N_O = [-1]
 
+                elif result1[0].lower() == 'vacant' :
                     Vacancy = [-1]
+                else:
+                    pass
 
                 query = "SELECT * FROM owner"
                 cur.execute(query)
                 result = cur.fetchall()
                 found = False
-                for i in result:
-                    if apt_entry3.get().isdigit():
-                        if int(apt_entry3.get()) == i[3]:
-                            found = True                      
-                if found == False:
-                    messagebox.showerror(title="INVALID INPUT", message="A record with the given BNO does not exists")
-                else:            
+                
+                if B_N_O != [-1]: 
                     if apt_entry1.get().isdigit():
-                          if apt_entry2.get().isdigit():
-                              if apt_entry3.get().isdigit():
-                                  if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
-                                      if Vacancy == [-1]:
+                        if apt_entry2.get().isdigit() and len(apt_entry2.get()) == 10:
+                            if apt_entry3.get().isdigit():
+                                if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
+                                
+                                    if Vacancy == [-1]:
 
-                                          query2 = "update owner set Ow_ID = %s,Phone_NO = %s  where BNO = &s"
-                                          values = (int(apt_entry1.get()),int(apt_entry2.get()), int(apt_entry3.get()))
-                                          cur.execute(query2,values)
-                                          con.commit()
+                                      old = int(apt_entry1.get())
+                                      query2 = "update owner set Ow_ID = %s,Phone_NO = %s  where Ow_ID = %s"
+                                      values = (int(apt_entry1.get()),int(apt_entry2.get()), old)
+                                      cur.execute(query2,values)
+                                      con.commit()
 
-                                          if str(apt_entry5.get()) == '':
-                                              messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
-                                          else:
-                                              messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
-
+                                      if str(apt_entry5.get()) == '':
+                                          messagebox.showinfo(title="RECORD ADDED", message="You successfully updated a record.")
                                       else:
-                                      
-                                          query1 = "update owner set Ow_ID = %s,Name = %s,Phone_NO = %s where BNO = &s"
-                                          values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
-                                          cur.execute(query1, values)
-                                          con.commit()
+                                          messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
 
-                                          messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
-                                     
-                                  else:
-                                      messagebox.showerror(title="INVALID INPUT", message="NAME MUST A STRING")
-                              else:
-                                  messagebox.showerror(title="INVALID INPUT", message="BNO MUST BE AN INTEGER")
-                          else:
-                              messagebox.showerror(title="INVALID INPUT", message="PHONE NO MUST BE AN INTEGER")
+                                    else:
+                                    
+                                        query1 = "update owner set Ow_ID = %s, Name = %s,Phone_NO = %s where BNO = %s"
+                                        values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
+                                        cur.execute(query1,values)
+                                        con.commit()
+
+                                        messagebox.showinfo(title="RECORD ADDED", message="You successfully updated a record.")
+                             
+                               
+                                else:
+                                    messagebox.showerror(title="INVALID INPUT", message="NAME MUST A STRING")
+                            else:
+                                messagebox.showerror(title="INVALID INPUT", message="BNO MUST BE AN INTEGER")
+                        else:
+                            messagebox.showerror(title="INVALID INPUT", message="PHONE NO MUST BE AN INTEGER" + "\n" + 'AND MUST BE 10 DIGITS LONG')
                     else:
-                          messagebox.showerror(title="INVALID INPUT", message="Ow_ID MUST BE AN INTEGER")
+                        messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
+
+                            #A FRAME TO SHOW WHAT AND ALL YOU CAN DO  WHEN U PRESS APT BUTTON
 
 
-
-                    #A FRAME TO SHOW WHAT AND ALL YOU CAN DO WHEN U PRESS APT BUTTON
             frame2 = tk.Frame(window2, width=400, height=400, bg='white')
             frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
             frame2.place(x=375, y=200)
@@ -545,7 +556,7 @@ if con.is_connected():
 
         def VIEW1():
             
-            frame2 = tk.Frame(window2, width=420, height=410, bg='white')
+            frame2 = tk.Frame(window2, width=400, height=400, bg='white')
             frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
             frame2.place(x=375, y=180)
 
@@ -553,9 +564,9 @@ if con.is_connected():
             query = "SELECT * FROM owner"
             cur.execute(query)
             result = cur.fetchall()
-            t = "{:<15}{:<15}{:<25}{:<15}"
+            t = "{:<15}{:<12}{:<20}{:<5}"
             s = t.format('Ow_ID','Name','Phone_No', 'BNO')
-            t2 = "{:<15}{:<15}{:<25}{:<15}"
+            t2 = "{:<15}{:<15}{:<20}{:<12}"
             s2 =''
             for i in result:
               if i[1] == 'None' : 
@@ -565,7 +576,7 @@ if con.is_connected():
 
             view_label1 = tk.Label(frame2,
              text='TABLE   :    OWNER', bg='white',width=45, fg="#FF3399",borderwidth=1, relief="solid", font=("Arial", 16))
-            view_label1.place(x=-70, y=0)
+            view_label1.place(x=-70, y=10)
             view_label2 = tk.Label(frame2,
              text=s, bg='white',width=45, fg="#FF3399", font=("Arial", 12))
             view_label2.place(x=0, y=70)
@@ -732,87 +743,180 @@ if con.is_connected():
         text="APARTMENTS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=APT)
     apt_button.place(x = 50 , y = 200)
     event_button = tk.Button(window2,
-        text="EVENTS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=event)
+        text="COMPLAINTS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=event)
     event_button.place(x = 50 , y = 350)
     Owner_button = tk.Button(window2,
         text="OWNER", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=owner)
-    Owner_button.place(x = 50 , y = 280)
+    Owner_button.place(x = 75 , y = 280)
     Amenities_but = tk.Button(window2,
-      text="Amenities", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=Amenities)
+      text="CREDENTIALS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=Amenities)
     Amenities_but.place(x = 50 , y = 415)
     clear = tk.Button(window2,
       text="CLEAR", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=clear_table)
-    clear.place(x = 50 , y = 480)
+    clear.place(x = 75 , y = 480)
     Exit_Button = tk.Button(window2,
       text="Exit", bg="#FF3399", fg="#FFFFFF",borderwidth=3, relief="raised", font=("Arial", 16), command=window2.destroy)
     Exit_Button.place(x = 800 , y = 550)
 
 
 
-          #Button to HOME PAGE
-  def login():
-      username = "a"
-      password = "a"
-     
-      if username_entry.get()==username and password_entry.get()==password:
-          messagebox.showinfo(title="Login Success", message="You successfully logged in.")
-          Home_Page()
-          window.destroy()
-          
-      else:
-          messagebox.showerror(title="Error", message="Unathorised Access")
+  def Admin():
+      
+      def login_adm():
+          username = "a"
+          password = "a"
+         
+          if username_entry.get()==username and password_entry.get()==password:
+              messagebox.showinfo(title="Login Success", message="You successfully logged in.")
+              Home_Page()
+              window1.destroy()
+              
+          else:
+              messagebox.showerror(title="Error", message="Unathorised Access")
 
 
-              #Forgot Password
-  def forgot_pass():
-    messagebox.showinfo(title="Forgot_Pass", message="Username => Jagath \n\nPassword => 123456")
+                  #Forgot Password
+      def forgot_pass():
+        messagebox.showinfo(title="Forgot_Pass", message="Username => Jagath \n\nPassword => 123456")
 
-  window = tk.Tk()
-  window.title("Login Page")
-  window.geometry('390x440+435+175')
-  window.configure(bg='#333333')
-  window.resizable(False,False)
+      window_start.destroy()
+
+      window1 = tk.Tk()
+      window1.title("Login Page")
+      window1.geometry('390x440+435+175')
+      window1.configure(bg='#333333')
+      window1.resizable(False,False)
+
+                  #IMAGE FOR LOGIN PAGE
+      frame = tk.Frame(window1, width=390, height=440, bg='white')
+      frame.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+                        ##This is to place the frame of the image on the window2
+      frame.place(x=0, y=0)
+
+      global img
+      img = PhotoImage(file='C:/Users/Rohit/Desktop/lovepik-apartment-building-png-image_401530275_wh1200.png', master=window1)
+
+                        # Create a Label Widget to display the text or Image
+      label = tk.Label(frame, image=img)
+      label.place(x=-250,y=-100)
+
+      login_label = tk.Label(
+          window1, text="Login", bg='white', fg="#FF3399", font=("Arial", 30))
+      username_label = tk.Label(
+          window1, text="Username", bg='white', fg="#FF3399", font=("Arial", 16))
+      username_entry = tk.Entry(window1,fg="#FF3399", font=("Arial", 16))
+      password_entry = tk.Entry(window1, show="*", font=("Arial", 16))
+      password_entry.bind('<Return>', lambda event: login_adm())
+      password_label = tk.Label(
+          window1, text="Password", bg='white', fg="#FF3399", font=("Arial", 16))
+      login_button = tk.Button(
+          window1, text="Login", bg="white", fg="#FF3399", font=("Arial", 16), command=login_adm)
+      Forgot_Cred = tk.Button(
+          window1, text="Forgot password", bg="white", fg="#FF3399", font=("Arial", 10), command=forgot_pass)
+      Forgot_Cred.place(x = 140,y = 275)
+
+      login_label.place(x=140, y=0)
+      username_label.place(x=25, y=100)
+      username_entry.place(x=125, y=100)
+      password_label.place(x=25, y=150)
+      password_entry.place(x=125, y=150)
+      login_button.place(x=155, y=225)
+
+  def User():
+
+      def login_user():
+          username = "Jagath"
+          password = ""
+            
+          Name = str(username_entry.get())
+
+          if username_entry.get()==username and password_entry.get()==password:
+              messagebox.showinfo(title="Login Success", message="  WELCOME  "+  Name)
+              Home_Page()
+              window.destroy()
+              
+          else:
+              messagebox.showerror(title="Error", message="Unathorised Access")
+
+
+                  #Forgot Password
+      def forgot_pass():
+        messagebox.showinfo(title="Forgot_Pass", message="Username => Jagath \n\nPassword => 123456")
+
+      window_start.destroy()
+
+      window = tk.Tk()
+      window.title("Login Page")
+      window.geometry('390x440+435+175')
+      window.configure(bg='#333333')
+      window.resizable(False,False)
+
+                  #IMAGE FOR LOGIN PAGE
+      frame = tk.Frame(window, width=390, height=440, bg='white')
+      frame.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+                        ##This is to place the frame of the image on the window2
+      frame.place(x=0, y=0)
+
+      global img
+      img = PhotoImage(file='C:/Users/Rohit/Desktop/lovepik-apartment-building-png-image_401530275_wh1200.png', master=window)
+
+                        # Create a Label Widget to display the text or Image
+      label = tk.Label(frame, image=img)
+      label.place(x=-250,y=-100)
+
+      login_label = tk.Label(
+          window, text="Login", bg='white', fg="#FF3399", font=("Arial", 30))
+      username_label = tk.Label(
+          window, text="Username", bg='white', fg="#FF3399", font=("Arial", 16))
+      username_entry = tk.Entry(window,fg="#FF3399", font=("Arial", 16))
+      password_entry = tk.Entry(window, show="*", font=("Arial", 16))
+      password_entry.bind('<Return>', lambda event: login_user())
+      password_label = tk.Label(
+          window, text="Password", bg='white', fg="#FF3399", font=("Arial", 16))
+      login_button = tk.Button(
+          window, text="Login", bg="white", fg="#FF3399", font=("Arial", 16), command=login_user)
+      Forgot_Cred = tk.Button(
+          window, text="Forgot password", bg="white", fg="#FF3399", font=("Arial", 10), command=forgot_pass)
+      Forgot_Cred.place(x = 140,y = 275)
+
+
+
+              # Placing Labels on the screen
+      login_label.place(x=140, y=0)
+      username_label.place(x=25, y=100)
+      username_entry.place(x=125, y=100)
+      password_label.place(x=25, y=150)
+      password_entry.place(x=125, y=150)
+      login_button.place(x=155, y=225)
+
+
+
+  window_start = tk.Tk()
+  window_start.title("Login Page")
+  window_start.geometry('950x500+250+150')
+  window_start.configure(bg='#2F38F6')
+  window_start.resizable(False,False)
 
               #IMAGE FOR LOGIN PAGE
-  frame = tk.Frame(window, width=390, height=440, bg='white')
+  frame = tk.Frame(window_start, width=1200, height=600, bg='white')
   frame.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
                     ##This is to place the frame of the image on the window2
   frame.place(x=0, y=0)
 
-  global img
-  img = PhotoImage(file='C:/Users/Rohit/Desktop/lovepik-apartment-building-png-image_401530275_wh1200.png', master=window)
+  global img1
+  img1 = PhotoImage(file='C:/Users/Rohit/Desktop/Finance_a_home.png', master=window_start)
 
                     # Create a Label Widget to display the text or Image
-  label = tk.Label(frame, image=img)
-  label.place(x=-250,y=-100)
-
-  login_label = tk.Label(
-      window, text="Login", bg='white', fg="#FF3399", font=("Arial", 30))
-  username_label = tk.Label(
-      window, text="Username", bg='white', fg="#FF3399", font=("Arial", 16))
-  username_entry = tk.Entry(window,fg="#FF3399", font=("Arial", 16))
-  password_entry = tk.Entry(window, show="*", font=("Arial", 16))
-  password_entry.bind('<Return>', lambda event: login())
-  password_label = tk.Label(
-      window, text="Password", bg='white', fg="#FF3399", font=("Arial", 16))
-  login_button = tk.Button(
-      window, text="Login", bg="white", fg="#FF3399", font=("Arial", 16), command=login)
-  Forgot_Cred = tk.Button(
-      window, text="Forgot password", bg="white", fg="#FF3399", font=("Arial", 10), command=forgot_pass)
-  Forgot_Cred.place(x = 140,y = 275)
+  label = tk.Label(frame, image=img1)
+  label.place(x=-50,y=-3)
 
 
+  Adm_Button = tk.Button(window_start,
+      text="  ADMIN   ", bg="#868BFF", fg="#FFFFFF", font=("Arial", 16),borderwidth=3,relief="raised", command=Admin)
+  Adm_Button.place(x = 150 , y = 210)
+  User_Button = tk.Button(window_start,
+      text="   USER   ", bg="#868BFF", fg="#FFFFFF",borderwidth=3, relief="raised", font=("Arial", 16), command=User)
+  User_Button.place(x = 150 , y = 275)
 
 
-
-          # Placing Labels on the screen
-  login_label.place(x=140, y=0)
-  username_label.place(x=25, y=100)
-  username_entry.place(x=125, y=100)
-  password_label.place(x=25, y=150)
-  password_entry.place(x=125, y=150)
-  login_button.place(x=155, y=225)
-
-
-  window.mainloop()
-
+  window_start.mainloop()

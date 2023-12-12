@@ -31,11 +31,11 @@ if con.is_connected():
   cur.execute(query2)
   query3 = "create table if not exists apt(BNO INT PRIMARY KEY,BHK INT,Square_Feet int,Vacancy CHAR(15),Price INT,check(Price >= 1000000 and Price <= 9999999 and Square_Feet >= 800 and Square_Feet <= 1600))"
   cur.execute(query3)
-  query4 = "create table if not exists owner(Ow_ID INT NOT NULL PRIMARY KEY,Name char(15),Phone_No char(10),BNO INT,CONSTRAINT FOREIGN KEY (BNO) REFERENCES apt(BNO) ON DELETE CASCADE ON UPDATE CASCADE);"
+  query4 = "create table if not exists owner(Ow_ID INT NOT NULL PRIMARY KEY,Name char(15),Phone_No BIGINT,BNO INT,CONSTRAINT FOREIGN KEY (BNO) REFERENCES apt(BNO) ON DELETE CASCADE ON UPDATE CASCADE);"
   cur.execute(query4)
-  query5 = "create table if not exists complaints(C_NO INT NOT NULL PRIMARY KEY,Name char(15),COMPLAINT CHAR(35)) "
+  query5 = "create table if not exists complaints(C_NO INT NOT NULL PRIMARY KEY,Name char(15),Ow_ID INT,CONSTRAINT FOREIGN KEY (Ow_ID) REFERENCES owner(Ow_ID) ON DELETE CASCADE ON UPDATE CASCADE,COMPLAINT CHAR(35)) "
   cur.execute(query5)
-  query6 = 'create table if not exists credentials(Username CHAR(10) NOT NULL,Password CHAR(10) NOT NULL PRIMARY KEY,Ow_ID INT,CONSTRAINT FOREIGN KEY (Ow_ID) REFERENCES owner(Ow_ID) ON DELETE CASCADE ON UPDATE CASCADE)'
+  query6 = 'create table if not exists credentials(Username CHAR(10) NOT NULL,Password CHAR(10) NOT NULL PRIMARY KEY,Ow_ID INT UNIQUE,CONSTRAINT FOREIGN KEY (Ow_ID) REFERENCES owner(Ow_ID) ON DELETE CASCADE ON UPDATE CASCADE)'
   cur.execute(query6)
   con.commit()
 
@@ -49,37 +49,49 @@ if con.is_connected():
           s = a.read()
           a.close()
 
-          b = open("Reply_Username.txt","r")
-          q = b.read()
-          b.close()
+          try:
+              b = open("Reply_Username.txt","r")
+              q = b.read()
+              b.close()
 
-          if s == q:
+              if s == q:
 
-              window2.title("YOUR INBOX")
-              window2.geometry('500x215-450+260')
-              window2.configure(bg='#f7e7ce')
-              window2.resizable(False,False)  
+                  window2.title("YOUR INBOX")
+                  window2.geometry('500x215-450+260')
+                  window2.configure(bg='#f7e7ce')
+                  window2.resizable(False,False)  
 
-              test = tk.Label(window2,
-                 text='YOU HAVE AN UNREAD MESSAGE', bg='#f7e7ce',width=50, fg="#FF3399", font=("Arial", 16))
-              test.place(x=-40,y=10)
-              test1 = tk.Label(window2,
-                 text='SENDER : ADMIN', bg='#f7e7ce',width=50, fg="#FF3399", font=("Arial", 16))
-              test1.place(x=-40,y=40)
+                  test = tk.Label(window2,
+                     text='YOU HAVE AN UNREAD MESSAGE', bg='#f7e7ce',width=50, fg="#FF3399", font=("Arial", 16))
+                  test.place(x=-40,y=10)
+                  test1 = tk.Label(window2,
+                     text='SENDER : ADMIN', bg='#f7e7ce',width=50, fg="#FF3399", font=("Arial", 16))
+                  test1.place(x=-40,y=40)
 
-              F = open("comment.txt",'r')
-              s = F.read()
+                  F = open("comment.txt",'r')
+                  s = F.read()
 
-              frame2 = tk.Frame(window2, width=410, height=175, bg='#e5fcf5')
-              frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
-              frame2.place(x=40, y=115)
+                  frame2 = tk.Frame(window2, width=410, height=175, bg='#e5fcf5')
+                  frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+                  frame2.place(x=40, y=115)
 
-              test = tk.Label(frame2,
-                 text= s, bg='#e5fcf5',width=50, fg="#FF3399", font=("Arial", 16))
-              test.place(x=-100,y=0)
+                  test = tk.Label(frame2,
+                     text= s, bg='#e5fcf5',width=50, fg="#FF3399", font=("Arial", 16))
+                  test.place(x=-100,y=0)
 
-          else:
+              else:
 
+                  window2.title("YOUR INBOX")
+                  window2.geometry('500x215-450+260')
+                  window2.configure(bg='white')
+                  window2.resizable(False,False)
+
+                  test = tk.Label(window2,
+                     text='YOU HAVE NO UNREAD MESSAGES', bg='white',width=50, fg="#FF3399", font=("Arial", 18))
+                  test.place(x=-90,y=65)
+
+          except FileNotFoundError:
+            
               window2.title("YOUR INBOX")
               window2.geometry('500x215-450+260')
               window2.configure(bg='white')
@@ -124,6 +136,12 @@ if con.is_connected():
 
       def Complaints():
 
+          try:
+            global view_cred
+            view_cred.place(x=1000,y=1000)
+          except NameError:
+            pass
+
           def add_complaints():
 
               def submit():
@@ -149,22 +167,22 @@ if con.is_connected():
                   found2 = False
                   found3 = False
                   for i in result3:
-                      if com_OID.get() == i[0]:
+                      if int(com_OID.get()) == i[0]:
                           found2 = True
-                          break
-
-                      if found2 == False:
-                          messagebox.showerror(title="INVALID INPUT", message="WRONG OW_ID IS ENTERED")
+                          
 
                       if com_Name.get().isdigit() or str(com_Name.get()) == '':
                               messagebox.showerror(title="INVALID INPUT", message= 'NAME MUST BE A STR')
                       else:
                           if com_Name.get().lower() == (str(i[1])).lower():
                               found3 = True
-                              break
+                              
 
                           else:
                               messagebox.showerror(title="INVALID INPUT", message= str(com_Name.get()) + ' IS NOT THE OWNER OF the BLD NO ' + com_OID.get())
+
+                      if found2 == False:
+                          messagebox.showerror(title="INVALID INPUT", message="WRONG OW_ID IS ENTERED")
                       
                   if found == True:
                       messagebox.showerror(title="INVALID INPUT", message="A record with the given CNO already exists")
@@ -181,13 +199,13 @@ if con.is_connected():
 
                                       messagebox.showinfo(title="COMPLAINT SUBMITED", message="You successfully submitted a complaint.")  
                                   else:
-                                      messagebox.showerror(title="INVALID INPUT", message="PRICE MUST BE A DIGIT")
+                                      messagebox.showerror(title="INVALID INPUT", message="PROPER CREDENTIALS ARE REQUIRED")
                               else:
                                   messagebox.showerror(title="INVALID INPUT", message="A COMPLAINT MUST BE A STR AND 8 <= LENGTH =< 25")
                           else:
-                              messagebox.showerror(title="INVALID INPUT", message="Square_Feet MUST A DIGIT")
+                              messagebox.showerror(title="INVALID INPUT", message="Ow_ID MUST A DIGIT")
                       else:
-                          messagebox.showerror(title="INVALID INPUT", message="BLD_No MUST BE AN INTEGER")
+                          messagebox.showerror(title="INVALID INPUT", message="COM_No MUST BE AN INTEGER")
 
 
               frame2 = tk.Frame(window2, width=400, height=400, bg='white')
@@ -258,17 +276,67 @@ if con.is_connected():
                   text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
               close.place(x = 155 , y = 350)
 
-              
-          add_button = tk.Button(window2,
+          global add4_button,view4_button
+          add4_button = tk.Button(window2,
           text="ADD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=add_complaints)
-          add_button.place(x = 260 , y = 300)
-          view_button = tk.Button(window2,
+          add4_button.place(x = 260 , y = 300)
+          global view4_button
+          view4_button = tk.Button(window2,
           text="VIEW", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=view_complaints)
-          view_button.place(x = 260 , y = 350)
+          view4_button.place(x = 260 , y = 350)
 
 
-      def add_complaints_adm():
-          pass
+      def add_Cred_user():
+          try:
+            global add4_button
+            view4_button.place(x=1000,y=1000)
+            add4_button.place(x=1000,y=1000)
+          except NameError:
+            pass
+          def view_cred2():
+              frame2 = tk.Frame(window2, width=400, height=400, bg='white')
+              frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+              frame2.place(x=375, y=180)
+
+              F = open('Login_Username.txt','r')
+              F2 = open('Password_Username.txt','r')
+              S1 = F.read()
+              S2 = F2.read()
+
+                            ###QUERY TO VIEW THE TABLE CONTENTS
+              query = "SELECT * FROM credentials where Username = %s and Password = %s"
+              values = (S1,S2)
+              cur.execute(query,values)
+              result = cur.fetchall()
+              t = "{:<15}{:<20}{:<10}"
+              s = t.format('USERNAME','PASSWORD','Ow_ID')
+              t2 = "{:<20}{:<30}{:<20}"
+              s2 =''
+              for i in result:
+                if i[1] == 'None' : 
+                    s2 += t2.format(str(i[0]),'NULL', str(i[2]), str(i[3]))+ '\n' + '\n'
+                else:
+                    s2 += t2.format(str(i[0]),str(i[1]), str(i[2]))+ '\n' + '\n'
+
+              view_label1 = tk.Label(frame2,
+               text='TABLE   :    CREDENTIALS', bg='white',width=45, fg="#FF3399",borderwidth=1, relief="solid", font=("Arial", 16))
+              view_label1.place(x=-70, y=10)
+              view_label2 = tk.Label(frame2,
+               text=s, bg='white',width=45, fg="#FF3399", font=("Arial", 12))
+              view_label2.place(x=0, y=70)
+              view_label3 = tk.Label(frame2,
+               text=s2, bg='white',width=50, fg="#FF3399", font=("Arial", 12))
+              view_label3.place(x=0, y=100)
+
+
+              close = tk.Button(frame2,
+                  text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
+              close.place(x = 155 , y = 350)
+
+          global view_cred
+          view_cred = tk.Button(window2,
+                text="VIEW", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=view_cred2)
+          view_cred.place(x = 260 , y = 430)
 
       window2 = tk.Tk()
       window2.title("Home Page")
@@ -294,7 +362,7 @@ if con.is_connected():
           text="COMPLAINTS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=Complaints)
       COMPLAINTS_button.place(x = 50 , y = 350)
       CRED_but = tk.Button(window2,
-        text="CREDENTIALS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=add_complaints_adm)
+        text="CREDENTIALS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=add_Cred_user)
       CRED_but.place(x = 50 , y = 415)
       Exit_Button = tk.Button(window2,
         text="Exit", bg="#FF3399", fg="#FFFFFF",borderwidth=3, relief="raised", font=("Arial", 16), command=window2.destroy)
@@ -328,7 +396,7 @@ if con.is_connected():
           text="COMPLAINTS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=Complaints)
       event_button.place(x = 50 , y = 350)
       Amenities_but = tk.Button(window2,
-        text="CREDENTIALS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=Complaints)
+        text="CREDENTIALS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=add_Cred_user)
       Amenities_but.place(x = 50 , y = 415)
       inbox_button = tk.Button(window2,
           text="INBOX", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=inbox)
@@ -642,29 +710,21 @@ if con.is_connected():
                 else:           
                     if B_N_O != [-1]: 
                         if apt_entry1.get().isdigit():
-                            if apt_entry2.get().isdigit() and len(apt_entry2.get()) == 10:
+                            if apt_entry2.get().isdigit() and len(str(apt_entry2.get())) == 10:
                                 if apt_entry3.get().isdigit():
                                     if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
                                         if apt_entry1.get() == apt_entry3.get():
                                             if Vacancy == [-1]:
 
-                                                query2 = "insert into owner(Ow_ID,Phone_No,BNO) values(%s,%s,%s)"
-                                                values = (int(apt_entry1.get()),str(apt_entry2.get()),int(apt_entry3.get()))
-                                                cur.execute(query2,values)
-                                                con.commit()
-
-                                                if str(apt_entry5.get()) == '':
-                                                    messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
-                                                else:
-                                                    messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
+                                                messagebox.showerror(title="RECORD NOT ADDED", message="Can't Have an OWNER for a VACANT APT")
 
                                             else:
                                                 if str(apt_entry5.get()) == '':
-                                                    messagebox.showinfo(title="INVALID INPUT", message="MUST HAVE AN OWNER FOR A OWNED APT")
+                                                    messagebox.showerror(title="INVALID INPUT", message="MUST HAVE AN OWNER FOR A OWNED APT")
                                                 else:
                                                     query1 = "insert into owner values(%s, %s, %s,%s)"
-                                                    values = (int(apt_entry1.get()),str(apt_entry5.get()),str(apt_entry2.get()), int(apt_entry3.get()))
-                                                    cur.execute(query1, values)
+                                                    values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
+                                                    cur.execute(query1,values)
                                                     con.commit()
 
                                                     messagebox.showinfo(title="RECORD ADDED", message="You successfully added a record.")
@@ -745,32 +805,25 @@ if con.is_connected():
                 
                 if B_N_O != [-1]: 
                     if apt_entry1.get().isdigit():
-                        if apt_entry2.get().isdigit() and len(apt_entry2.get()) == 10:
+                        if apt_entry2.get().isdigit() and len(str(apt_entry2.get())) == 10:
                             if apt_entry3.get().isdigit():
                                 if apt_entry5.get().isalpha() or str(apt_entry5.get()) == '':
+                                    if apt_entry1.get() == apt_entry3.get():
                                 
-                                    if Vacancy == [-1]:
+                                        if Vacancy == [-1]:
 
-                                      old = int(apt_entry1.get())
-                                      query2 = "update owner set Ow_ID = %s,Phone_NO = %s  where Ow_ID = %s"
-                                      values = (int(apt_entry1.get()),int(apt_entry2.get()), old)
-                                      cur.execute(query2,values)
-                                      con.commit()
+                                            messagebox.showerror(title="INVALID INPUT", message="CANT UPDATE OWNER RECORD WHERE OWNER DOES NOT EXIST")
 
-                                      if str(apt_entry5.get()) == '':
-                                          messagebox.showinfo(title="RECORD ADDED", message="You successfully updated a record.")
-                                      else:
-                                          messagebox.showinfo(title="RECORD ADDED BUT...", message="Can't Have an owner for a VACANT APT")
+                                        else:
+                                        
+                                            query1 = "update owner set Ow_ID = %s, Name = %s,Phone_NO = %s where BNO = %s"
+                                            values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
+                                            cur.execute(query1,values)
+                                            con.commit()
 
+                                            messagebox.showinfo(title="RECORD ADDED", message="You successfully updated a record.")
                                     else:
-                                    
-                                        query1 = "update owner set Ow_ID = %s, Name = %s,Phone_NO = %s where BNO = %s"
-                                        values = (int(apt_entry1.get()),str(apt_entry5.get()),int(apt_entry2.get()), int(apt_entry3.get()))
-                                        cur.execute(query1,values)
-                                        con.commit()
-
-                                        messagebox.showinfo(title="RECORD ADDED", message="You successfully updated a record.")
-                             
+                                        messagebox.showerror(title = 'INVALID INPUT', message = "OW_ID MUST BE EQAUAL TO BNO")
                                
                                 else:
                                     messagebox.showerror(title="INVALID INPUT", message="NAME MUST A STRING")
@@ -902,22 +955,79 @@ if con.is_connected():
                 text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
             close.place(x = 155 , y = 350)
                       ## THE MAIN BUTTONS
-        apt_button1 = tk.Button(window2,
+        global owner_button1          
+        owner_button1 = tk.Button(window2,
           text="ADD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=ADD1)
-        apt_button1.place(x = 260 , y = 280)
+        owner_button1.place(x = 260 , y = 280)
         
         apt_button2 = tk.Button(window2,
           text="UPDATE", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=update1)
         apt_button2.place(x = 250 , y =330)
-        
-        apt_button3 = tk.Button(window2,
+        global owner_button3
+        owner_button3 = tk.Button(window2,
           text="DELETE", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=delete1)
-        apt_button3.place(x = 250 , y = 380)
+        owner_button3.place(x = 250 , y = 380)
         
         apt_button4 = tk.Button(window2,
           text="VIEW", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=VIEW1)
         apt_button4.place(x = 260 , y = 430)
     def Credentials():
+        
+        try:
+          owner_button3.place(x=1000,y=1000)
+          complaints_button3.place(x= 1000,y=1000)
+          apt_button3.place(x = 1000,y=1000)
+        except NameError:
+          pass
+        def delete_cred():
+
+            def delete_CREDENTIALS():
+
+                global Ow_ID_creddentials
+
+                if Ow_ID_creddentials.get() == None:
+                    messagebox.showerror(title="INVALID INPUT", message="Ow_ID CANNOT BE EMPTY")
+                else:
+                    query = 'select * from credentials where Ow_ID = %s'
+                    values = (Ow_ID_creddentials.get(),)
+                    cur.execute(query,values)
+                    result = cur.fetchall()
+                    if result == []:
+                        messagebox.showerror(title="INVALID INPUT", message="Ow_ID DOES NOT EXIST IN TABLE")
+                    else:
+                        query = 'delete from credentials where Ow_ID = %s'
+                        values = (Ow_ID_creddentials.get(),)
+                        cur.execute(query,values)
+                        con.commit()
+
+                        messagebox.showinfo(title="RECORD DELETED", message="CREDENTIALS SUCCESSFULLY DELETED")
+
+
+            frame2 = tk.Frame(window2, width=400, height=400, bg='white')
+            frame2.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+            frame2.place(x=375, y=180)
+
+            apt_label1 = tk.Label(frame2,
+              text="ENTER Ow_ID DETAILS OF ", bg='white',width=25, fg="#FF3399", font=("Arial", 15))
+            apt_label1.place(x=60,y=20)
+            apt_label3 = tk.Label(frame2,
+             text=" CREDENTIALS TO BE DELETED", bg='white',width=30, fg="#FF3399", font=("Arial", 15))
+            apt_label3.place(x=30,y=60)
+            apt_label2 = tk.Label(frame2,
+             text="Ow_ID", bg='white',width=15, fg="#FF3399", font=("Arial", 16))
+            apt_label2.place(x = -15 , y = 150)
+            global Ow_ID_creddentials
+            Ow_ID_creddentials = tk.Entry(frame2,fg="#FF3399", font=("Arial", 16))
+            Ow_ID_creddentials.place(x = 130,y = 150)
+
+            apt_button1 = tk.Button(frame2,
+                text="DELETE CREDENTIALS", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=delete_CREDENTIALS)
+            apt_button1.place(x = 100 , y = 275)
+
+            close = tk.Button(frame2,
+                text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
+            close.place(x = 155 , y = 325)
+
         def view_cred():
 
             frame2 = tk.Frame(window2, width=400, height=400, bg='white')
@@ -952,6 +1062,10 @@ if con.is_connected():
             close = tk.Button(frame2,
                 text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
             close.place(x = 155 , y = 350)
+
+        delete_cred= tk.Button(window2,
+          text="DELETE", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=delete_cred)
+        delete_cred.place(x = 250 , y = 380)
 
         view_cred = tk.Button(window2,
               text="VIEW", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=view_cred)
@@ -1000,6 +1114,7 @@ if con.is_connected():
                     cur.execute(query,values)
                     result = cur.fetchall()
 
+                    found1 = False
                     for i in result:
                           if Ow_ID_cred.get().isdigit():
                                 if int(Ow_ID_cred.get()) == i[0]:
@@ -1035,8 +1150,8 @@ if con.is_connected():
 
 
         apt_button1 = tk.Button(window2,
-            text="update", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command= update_cred)
-        apt_button1.place(x = 260 , y = 330)
+            text="UPDATE", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command= update_cred)
+        apt_button1.place(x = 250 , y = 330)
 
         def add_cred():
             global username_user,password_user,Ow_ID_cred
@@ -1075,6 +1190,16 @@ if con.is_connected():
                 cur.execute(query)
                 result = cur.fetchall()
 
+                query = 'select * from credentials where Ow_ID = %s'
+                values = (Ow_ID_cred.get(),)
+                cur.execute(query,values)
+                result1 = cur.fetchall()
+                found = False
+                if result1 == []:
+                  found = True
+
+                found1 = False
+
                 if Ow_ID_cred.get() == '':
                     messagebox.showerror(title="INVALID INPUT", message=" BNO CANT BE EMPTY")
                 else:
@@ -1089,19 +1214,24 @@ if con.is_connected():
                     if found1 != True:
                           messagebox.showerror(title="INVALID INPUT", message="A RECORD WITH THE GIVEN BNO DOES NOT EXIST")
                     else:
-                        if str(username_user.get()) != '' and len(str(username_user.get())) == 8:
-                            if str(password_user.get()) != '' and len(str(password_user.get())) == 10:
+                        if found == True:
+                            if str(username_user.get()) != '' and len(str(username_user.get())) == 8:
+                                if str(password_user.get()) != '' and len(str(password_user.get())) == 10:
+                                    try:
+                                        query = "insert into credentials values(%s, %s, %s)"
+                                        values = (username_user.get(),password_user.get(),str(Ow_ID_cred.get()))
+                                        cur.execute(query,values)
+                                        con.commit()
 
-                                query = "insert into credentials values(%s, %s, %s)"
-                                values = (username_user.get(),password_user.get(),str(Ow_ID_cred.get()))
-                                cur.execute(query,values)
-                                con.commit()
-
-                                messagebox.showinfo(title="SAVED SUCCESSFULLY", message="CREDENTIALS OF USER HAVE BEEN SAVED")
+                                        messagebox.showinfo(title="SAVED SUCCESSFULLY", message="CREDENTIALS OF USER HAVE BEEN SAVED")
+                                    except ms.errors.IntegrityError:
+                                        messagebox.showerror(title="ERROR", message="DUPLICATE CREDENTIALS CANNOT BE ASSIGNED")
+                                else:
+                                    messagebox.showerror(title="INVALID INPUT", message="PASSWORD MUST BE 10 CHARECTERS LONG")
                             else:
-                                messagebox.showerror(title="INVALID INPUT", message="PASSWORD MUST BE 10 CHARECTERS LONG")
+                              messagebox.showerror(title="INVALID INPUT", message="USERNAME MUST BE 8 CHARECTERS LONG")
                         else:
-                          messagebox.showerror(title="INVALID INPUT", message="USERNAME MUST BE 8 CHARECTERS LONG")
+                            messagebox.showerror(title="INVALID INPUT", message="OWNER CREDENTIALS ALREADY EXIST")
 
 
             save = tk.Button(frame2,
@@ -1112,15 +1242,17 @@ if con.is_connected():
                 text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
             close.place(x = 225 , y = 300)
 
-
-        apt_button1 = tk.Button(window2,
+        global credentials_button1
+        credentials_button1 = tk.Button(window2,
             text="ADD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=add_cred)
-        apt_button1.place(x = 260 , y = 280)
+        credentials_button1.place(x = 260 , y = 280)
 
 
     def Complaints():
-      def add_complaints_adm():
-          pass
+      try:
+        credentials_button1.place(x=1000,y=1000)
+      except NameError:
+        pass
       def REPLY():
 
 
@@ -1157,31 +1289,34 @@ if con.is_connected():
                           else:
                               found_reply = True
                               break
+                  try:
 
-                  if found_reply == True:
-                      query = 'select Ow_ID from complaints where C_NO = %s'
-                      x = (int(apt_entry.get()),)
-                      cur.execute(query,x)
-                      y = cur.fetchall()
-                      Input_Oid = y[0][0]
-                      query = 'select username from credentials where Ow_ID = %s'
-                      z = (Input_Oid,)
-                      cur.execute(query,z)
-                      a = cur.fetchall()
-                      Input_Username = a[0][0]
+                      if found_reply == True:
+                          query = 'select Ow_ID from complaints where C_NO = %s'
+                          x = (int(apt_entry.get()),)
+                          cur.execute(query,x)
+                          y = cur.fetchall()
+                          Input_Oid = y[0][0]
+                          query = 'select username from credentials where Ow_ID = %s'
+                          z = (Input_Oid,)
+                          cur.execute(query,z)
+                          a = cur.fetchall()
+                          Input_Username = a[0][0]
 
-                      K = open("Reply_Username.txt","w")
-                      K.write(Input_Username)
-                      K.close()
+                          K = open("Reply_Username.txt","w")
+                          K.write(Input_Username)
+                          K.close()
 
-                      K2 = open("Reply_Username.txt","r")
-                      q = K2.read()
-                      K2.close()
+                          K2 = open("Reply_Username.txt","r")
+                          q = K2.read()
+                          K2.close()
 
-                      messagebox.showinfo(title="REPLY SENT", message="MSG SENT SUCCESSFULLY")
-                  else:
-                      messagebox.showerror(title="INVALID INPUT", message="COMPLAINT DOES NOT EXIST IN TABLE")
+                          messagebox.showinfo(title="REPLY SENT", message="MSG SENT SUCCESSFULLY")
+                      else:
+                          messagebox.showerror(title="INVALID INPUT", message="COMPLAINT DOES NOT EXIST IN TABLE")
 
+                  except UnboundLocalError:
+                      messagebox.showerror(title="INVALID INPUT", message="COMPLAINT WITH GIVEN COM_NO DOES NOT EXIST IN TABLE")
 
           apt_label1 = tk.Label(frame2,
            text="ENTER COM_NO OF", bg='white',width=25, fg="#FF3399", font=("Arial", 15))
@@ -1220,9 +1355,10 @@ if con.is_connected():
               query = "SELECT * FROM complaints"
               cur.execute(query)
               result = cur.fetchall()
+              found = False
               for i in result:
                   if int(apt_entry.get()) != i[0]:
-                      found = False
+                      pass
                   else:
                       found = True
                       break
@@ -1291,17 +1427,21 @@ if con.is_connected():
               text="CLOSE", bg="#FF3399", fg="#FFFFFF",  borderwidth=3, relief="raised",font=("Arial", 16), command=frame2.destroy)
           close.place(x = 155 , y = 350)
 
-      apt_button1 = tk.Button(window2,
-        text="ADD", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=add_complaints_adm)
-      apt_button1.place(x = 260 , y = 280)
+      global owner_button1,apt_button1
+
+      try:
+        owner_button1.place(x=1000,y=1000)
+        apt_button1.place(x=1000,y=1000)
+      except NameError:
+        pass
       
       apt_button2 = tk.Button(window2,
-        text="REPLY", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=REPLY)
+        text=" REPLY ", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=REPLY)
       apt_button2.place(x = 250 , y =330)
-      
-      apt_button3 = tk.Button(window2,
+      global complaints_button3
+      complaints_button3 = tk.Button(window2,
         text="DELETE", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=delete_complaints_adm)
-      apt_button3.place(x = 250 , y = 380)
+      complaints_button3.place(x = 250 , y = 380)
       
       apt_button4 = tk.Button(window2,
         text="VIEW", bg="#FF3399", fg="#FFFFFF", font=("Arial", 16), command=view_complaints_adm)
@@ -1542,7 +1682,9 @@ if con.is_connected():
 
           if username_user_entry.get() in U and password_user_entry.get() in P:
               F = open("Login_Username.txt","w")
+              F3 = open('Password_Username.txt','w')
               F.write(username_user_entry.get())
+              F3.write(password_user_entry.get())
               F.close()
               F2 = open("Login_Username.txt","r")
               s = F2.read()
@@ -1608,6 +1750,8 @@ if con.is_connected():
                                   pas = i[1]
 
                               messagebox.showinfo(title="Forgot_Pass", message="Username => "+name+" \n\nPassword => "+pas)
+                          else:
+                              messagebox.showerror(title="Forgot_Pass", message="NAME DOES NOT MATCH OWNER NAME")
 
                               window.destroy()
 
